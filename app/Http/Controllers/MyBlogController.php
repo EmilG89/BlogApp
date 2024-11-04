@@ -26,7 +26,8 @@ class MyBlogController extends Controller
     public function create()
     {
         $categories = Post::$categories;
-        return view('my_blog.create', ['categories' => $categories]);
+        $categories1 = Category::all();
+        return view('my_blog.create', ['categories' => $categories, 'categories1' => $categories1]);
     }
 
     /**
@@ -48,6 +49,10 @@ class MyBlogController extends Controller
             'message' => trim(strip_tags($validated['message'])),
             'user_id' => $validated['user_id'],
         ]);
+
+        $post = Post::latest()->first();
+
+        $post->categories()->attach($request['category1']);
     
         return to_route('my_blog.index')->with('message', 'Post added successfully!');
     }

@@ -19,6 +19,7 @@
                 <div class="mb-4 p-4 bg-zinc-900 rounded-md">
                     <h2 class="mb-1">Title: {{ $post->title }}</h2>
                     <h2 class="mb-1">Category: {{ $post->category }}</h2>
+                    <h2 class="mb-1">Category1: @foreach ($post->categories as $category) {{ $category->category }}, @endforeach</h2>
                     <h2 class="mb-1">Author: {{ $post->user->name }}</h2>
                     <p> {{ Str::words($post->message, 30) }} </p>
                     <div class="p-2 flex space-x-2 justify-end">

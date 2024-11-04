@@ -31,6 +31,15 @@
                     @endforeach
                 </select>
             </div>
+            <div class="mb-4 form-group">
+                <label for="category1" class="block text-sm font-bold mb-2">Category1</Label>
+                <select name="category1[]" class="form-control selectpicker text-black" multiple data-live-search="true">
+                    <option value="" disabled selected>Choose Category</option>
+                    @foreach ($categories1 as $category)
+                    <option value="{{ $category->id }}">{{ $category->category }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="mb-4">
                 <label for="message" class="block text-sm font-bold mb-2">Content</Label>
                 <textarea id="message" name="message" rows="5" required
