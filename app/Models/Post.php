@@ -9,14 +9,12 @@ class Post extends Model
 {
     use HasFactory;
 
-    public function user(/* $user_id */) {
-        //$user_name = User::where("id", $user_id)->get('name');
-        //return $user_name[0]['name'];
-        return $this->belongsTo('App\Models\User');
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 
     public function comments() {
-        return $this->hasMany('App\Models\Comment');
+        return $this->hasMany(Comment::class);
     }
 
      public function categories() {
@@ -34,7 +32,6 @@ class Post extends Model
 
     protected $fillable = [
         'title',
-        'category',
         'message',
         'user_id',
         //'category_id',

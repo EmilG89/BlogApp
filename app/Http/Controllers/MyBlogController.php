@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequest;
 use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -13,10 +14,11 @@ class MyBlogController extends Controller
      */
     public function index()
     {
-        $posts = Post::query()
-            ->where('user_id', request()->user()->id)
+        $posts = auth()->user()
+            ->posts()
             ->orderBy('created_at', 'desc')
             ->paginate(15);
+
         return view('my_blog.index', ['posts' => $posts]);
     }
 
@@ -33,40 +35,24 @@ class MyBlogController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|min:1|max:48',
-            'category' => 'required',
-            'message' => 'required|min:12|max:800',
-        ]);
+        $post = auth()->user()->posts()->create($request->except('categories'));
+        $post->categories()->attach($request['categories']);
 
-        $validated['user_id'] = request()->user()->id;
-
-        Post::create([
-            'title' => trim(strip_tags($validated['title'])),
-            'category' => $validated['category'],
-            'message' => trim(strip_tags($validated['message'])),
-            'user_id' => $validated['user_id'],
-        ]);
-
-        $post = Post::latest()->first();
-
-        $post->categories()->attach($request['category1']);
-    
         return to_route('my_blog.index')->with('message', 'Post added successfully!');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $my_blog)
+    public function show(Post $post)
     {
-        if ($my_blog->user_id !== request()->user()->id) {
+        if ($post->user_id !== auth()->user()->id) {
             abort(403);
         }
 
-        return view('my_blog.show', ['post' => $my_blog]);
+        return view('my_blog.show', ['post' => $post]);
     }
 
     /**
@@ -85,26 +71,15 @@ class MyBlogController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $my_blog)
+    public function update(PostRequest $request, Post $my_blog)
     {
         if ($my_blog->user_id !== request()->user()->id) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'title' => 'required',
-            'category' => 'required',
-            'message' => 'required',
-        ]);
+        $my_blog->update($request->validated());
 
-        $my_blog->update([
-            'title' => trim(strip_tags($validated['title'])),
-            'category' => $validated['category'],
-            'message' => trim(strip_tags($validated['message'])),
-        ]);
-    
         return to_route('my_blog.index')->with('message', 'Post updated successfully!');
-
     }
 
     /**
@@ -116,8 +91,8 @@ class MyBlogController extends Controller
             abort(403);
         }
 
-        $postToDelete = POST::find($my_blog->id);
-        $postToDelete->delete();
+        $my_blog->delete();
+
         return to_route('my_blog.index')->with('message', 'Post deleted successfully.');
     }
 }
